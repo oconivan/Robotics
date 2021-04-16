@@ -42,11 +42,11 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are
 those of the authors and should not be interpreted as representing official
 policies, either expressed or implied, of the FreeBSD Project.
-*/
+ */
 
 // external signal connected to P8.2 (TA3CCP2) (trigger on rising edge)
 // external signal connected to P10.4 (TA3CCP0) (trigger on rising edge)
-
+#include <stdio.h>
 #include <stdint.h>
 #include "msp.h"
 
@@ -66,14 +66,51 @@ void (*CaptureTask2)(uint16_t time) = ta3dummy;// user function
 // Output: none
 // Assumes: low-speed subsystem master clock is 12 MHz
 void TimerA3Capture_Init(void(*task0)(uint16_t time), void(*task2)(uint16_t time)){
-  // write this as part of lab 16
+    // write this as part of lab 16
+    CaptureTask0 = task0;
+    CaptureTask2 = task2;
+
+    //Init P10.4 (TA3.0)
+    P10DIR &=~0x30;
+    P10SEL0 |= 0x30;
+    //Init P8.2 (TA3.2)
+    P8DIR &=~0x04;
+    P8SEL0 |= 0x04;
+    // Timer0_A3 Setup
+    TIMER_A3->CCTL[0] = TIMER_A_CCTLN_CM_1 | // Capture rising edge,
+            TIMER_A_CCTLN_CCIS_0 |          // Use CCI2A=ACLK,
+            TIMER_A_CCTLN_CCIE |            // Enable capture interrupt
+            TIMER_A_CCTLN_CAP |             // Enable capture mode,
+            TIMER_A_CCTLN_SCS;              // Synchronous capture
+
+    TIMER_A3->CCTL[1] = TIMER_A_CCTLN_CM_1 | // Capture rising edge,
+            TIMER_A_CCTLN_CCIS_0 |          // Use CCI2A=ACLK,
+            TIMER_A_CCTLN_CCIE |            // Enable capture interrupt
+            TIMER_A_CCTLN_CAP |             // Enable capture mode,
+            TIMER_A_CCTLN_SCS;              // Synchronous capture
+
+    TIMER_A3->CTL |= TIMER_A_CTL_TASSEL_2 | // Use SMCLK as clock source,
+            TIMER_A_CTL_MC__CONTINUOUS |    // Start timer in continuous mode
+            TIMER_A_CTL_CLR;                // clear TA0R
+    NVIC->ISER[0] = 1 << ((TA3_0_IRQn) & 31);
+    NVIC->ISER[0] = 1 << ((TA3_N_IRQn) & 31);
+
+
+
 }
 
 void TA3_0_IRQHandler(void){
-  // write this as part of lab 16
+    // write this as part of lab 16
+    uint16_t time = TIMER_A3->CCR[0];
+    CaptureTask0(time);
+    // Clear the interrupt flag
+    TIMER_A3->CCTL[0] &= ~(TIMER_A_CCTLN_CCIFG);
 }
 
 void TA3_N_IRQHandler(void){
-  // write this as part of lab 16
+    // write this as part of lab 16
+    CaptureTask2(TIMER_A3->CCR[1]);
+    // Clear the interrupt flag
+    TIMER_A3->CCTL[1] &= ~(TIMER_A_CCTLN_CCIFG);
 }
 

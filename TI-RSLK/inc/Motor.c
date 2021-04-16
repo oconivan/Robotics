@@ -135,7 +135,6 @@ void Motor_Right(uint16_t leftDuty, uint16_t rightDuty){
     PWM_Init34(15000,leftDuty,rightDuty);
     //SysTick_Wait10ms(time);
     //PWM_Init34(duty,0,0);
-    P3OUT &=~0xC0;
 }
 
 // ------------Motor_Left------------

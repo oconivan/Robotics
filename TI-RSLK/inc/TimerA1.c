@@ -69,7 +69,9 @@ void TimerA1_Init(void(*task)(void), uint16_t period){
     TIMER_A1->CCTL[0] = TIMER_A_CCTLN_CCIE; // TACCR0 interrupt enabled
     TIMER_A1->CCR[0] = period - 1; //period
     TIMER_A1->CTL = TIMER_A_CTL_SSEL__SMCLK | // SMCLK, UP mode
+            TIMER_A_CTL_ID__4|
             TIMER_A_CTL_MC__UP;
+    TIMER_A1->EX0 = 5;
 }
 
 
@@ -85,6 +87,7 @@ void TimerA1_Stop(void){
 
 void TA1_0_IRQHandler(void){
  // write this as part of Lab 13
+
     TimerA1Task();
     TIMER_A1->CCTL[0] &=  ~0x0001; //clearing flag (no interrupt pending)
 }

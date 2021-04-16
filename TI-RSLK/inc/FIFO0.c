@@ -41,54 +41,77 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are
 those of the authors and should not be interpreted as representing official
 policies, either expressed or implied, of the FreeBSD Project.
-*/
+ */
 
 #include <stdint.h>
 #include "..\inc\FIFO0.h"
 
-// Implementation of the transmit FIFO, TxFifo0
+// Implementation of the transmit FIFO, rxFifo0
 // can hold 0 to TXFIFOSIZE-1 elements
 // you are allowed to restrict TXFIFOSIZE to a power of 2
 
 // add static, volatile, global variables here this as part of Lab 18
-
+char txFifo[TX0FIFOSIZE] ,txfifoStart, txfifoEnd, *txfifoPtr, txindex = 0;
+char rxFifo[TX0FIFOSIZE] ,rxfifoStart, rxfifoEnd, *rxfifoPtr, rxindex = 0;
 uint32_t TxHistogram[TX0FIFOSIZE]; 
 // probability mass function of the number of times TxFifo0 as this size
 // as a function of FIFO size at the beginning of call to TxFifo0_Put
 // initialize index TxFifo0
-void TxFifo0_Init(void){int i;
+void TxFifo0_Init(void){
+    int i;
+    // write this as part of Lab 18
+    txfifoPtr = txFifo;
+    txfifoEnd = 0;
+    txfifoStart = 0;
+    for(i=0;i<TX0FIFOSIZE;i++){
+        txFifo[i] = 0;
+    }
 
-// write this as part of Lab 18
-
-  for(i=0;i<TX0FIFOSIZE;i++){
-      TxHistogram[i] = 0;
-  }
+    for(i=0;i<TX0FIFOSIZE;i++){
+        TxHistogram[i] = 0;
+    }
 }
 // add element to end of index TxFifo0
 // return TXFIFOSUCCESS if successful
 int TxFifo0_Put(char data){
-  TxHistogram[TxFifo0_Size()]++;  // probability mass function
-
-// write this as part of Lab 18
-
-  return(FIFOSUCCESS);
+    TxHistogram[TxFifo0_Size()]++;  // probability mass function
+    if(txfifoEnd == txindex)
+    {
+        txFifo[txfifoEnd] = data;
+        txFifo[txfifoEnd + 1] = '\0';
+        txfifoEnd++;
+        if(txfifoEnd == 64)
+            txfifoEnd = 0;
+        return(FIFOSUCCESS);
+    }
+    else
+        return(FIFOFAIL);
 }
 // remove element from front of TxFifo0
 // return TXFIFOSUCCESS if successful
 int TxFifo0_Get(char *datapt){
-
-// write this as part of Lab 18
-
-
-  return(FIFOSUCCESS);
+    // write this as part of Lab 18
+    *datapt = txFifo[txindex];
+    if(*datapt)
+    {
+        txindex++;
+        if(txindex == 64)
+            txindex = 0;
+        return(FIFOSUCCESS);
+    }
+    else
+        return(FIFOFAIL);
 }
 // number of elements in TxFifo0
 // 0 to TXFIFOSIZE-1
 uint16_t TxFifo0_Size(void){
-
-// write this as part of Lab 18
-
- return 0; // replace this line
+    // write this as part of Lab 18
+    uint16_t size = 0;
+    while(txFifo[size])
+    {
+        size++;
+    }
+    return size; // replace this line
 }
 
 // Implementation of the receive FIFO, RxFifo0
@@ -100,31 +123,57 @@ uint16_t TxFifo0_Size(void){
 // initialize RxFifo0
 void RxFifo0_Init(void){
 
-// write this as part of Lab 18
-
+    // write this as part of Lab 18
+    int i;
+    rxfifoPtr = rxFifo;
+    rxfifoEnd = 0;
+    rxfifoStart = 0;
+    for(i=0;i<TX0FIFOSIZE;i++)
+    {
+        rxFifo[i] = 0;
+    }
 }
 // add element to end of RxFifo0
 // return FIFOSUCCESS if successful
 int RxFifo0_Put(char data){
-
-  // write this as part of Lab 18
-
-  return(FIFOSUCCESS);
+    // write this as part of Lab 18
+    if(rxfifoEnd == rxindex)
+    {
+        rxFifo[rxfifoEnd] = data;
+        rxFifo[rxfifoEnd + 1] = '\0';
+        rxfifoEnd++;
+        if(rxfifoEnd == 64)
+            rxfifoEnd = 0;
+        return(FIFOSUCCESS);
+    }
+    else
+        return(FIFOFAIL);
 }
 // remove element from front of RxFifo0
 // return FIFOSUCCESS if successful
 int RxFifo0_Get(char *datapt){
-
-  // write this as part of Lab 18
-
-  return(FIFOSUCCESS);
+    // write this as part of Lab 18
+    *datapt = rxFifo[rxindex];
+    if(*datapt)
+    {
+        rxindex++;
+        if(rxindex == 64)
+            rxindex = 0;
+        return(FIFOSUCCESS);
+    }
+    else
+        return(FIFOFAIL);
 }
 // number of elements in RxFifo0
 // 0 to RXFIFOSIZE-1
 uint16_t RxFifo0_Size(void){
-// write this as part of Lab 18
-
- return 0; // replace this line
+    // write this as part of Lab 18
+    uint16_t size = 0;
+    while(rxFifo[size])
+    {
+        size++;
+    }
+    return size; // replace this line
 }
 
 
