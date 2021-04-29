@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Lab12_Motors</name>
+	<name>Lab13_Timers</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -26,15 +26,44 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>Bump.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/inc/Bump.c</locationURI>
+		</link>
+		<link>
+			<name>Clock.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/inc/Clock.c</locationURI>
+		</link>
+		<link>
+			<name>CortexM.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/inc/CortexM.c</locationURI>
+		</link>
+		<link>
+			<name>LaunchPad.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/inc/LaunchPad.c</locationURI>
+		</link>
+		<link>
+			<name>Motor.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/inc/Motor.c</locationURI>
+		</link>
+		<link>
 			<name>PWM.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/inc/PWM.c</locationURI>
 		</link>
+		<link>
+			<name>TExaS.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/inc/TExaS.c</locationURI>
+		</link>
+		<link>
+			<name>TimerA1.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/inc/TimerA1.c</locationURI>
+		</link>
 	</linkedResources>
-	<variableList>
-		<variable>
-			<name>ORIGINAL_PROJECT_ROOT</name>
-			<value>file:/E:/slac768/tirslk_max_1_00_00/tirslk_max_1_00_00/Lab12_Motors</value>
-		</variable>
-	</variableList>
 </projectDescription>
