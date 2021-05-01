@@ -55,65 +55,100 @@ policies, either expressed or implied, of the FreeBSD Project.
 // Right motor PWM connected to P2.6/TA0CCP3 (J4.39)
 // Right motor enable connected to P3.6 (J2.11)
 
+
 #include <stdint.h>
 #include "msp.h"
 #include "../inc/SysTick.h"
 #include "../inc/Bump.h"
-//#include "PWM.c"
+#include "../inc/PWM.h"
 
+//**************RSLK1.1***************************
+// Left motor direction connected to P5.4 (J3.29)
+// Left motor PWM connected to P2.7/TA0CCP4 (J4.40)
+// Left motor enable connected to P3.7 (J4.31)
+// Right motor direction connected to P5.5 (J3.30)
+// Right motor PWM connected to P2.6/TA0CCP3 (J4.39)
+// Right motor enable connected to P3.6 (J2.11)
 // *******Lab 12 solution*******
 
 void Motor_InitSimple(void){
-// Initializes the 6 GPIO lines and puts driver to sleep
-    P5DIR |= 0x30;  //Set P5.5 and P5.4 as Outputs
-    P3DIR |= 0xC0;  //Set P3.7 and P3.6 as Outputs
-    P2DIR |= 0xC0;  //Set P2.7 and P2.6 as Outputs
-    P3OUT |= 0xC0; //Drivers in sleep mode
-// Returns right away
-// initialize P1.6 and P1.7 and make them outputs
-    P1DIR |= 0xC0;
-  // write this as part of Lab 12
-
+    // Initializes the 6 GPIO lines and puts driver to sleep
+    // Returns right away
+    // initialize P5.4 and P5.5 and make them outputs
+    // write this as part of Lab 12
+    P5DIR |= 0x30; //0011 0000 left and right
+    P3DIR |= 0xC0; //1100 0000
+    P2DIR |= 0xC0; //1100 0000
+    P3OUT |= 0xC0;
+    P2OUT &=~0xC0;
+    SysTick_Init();
 }
 
 void Motor_StopSimple(void){
-// Stops both motors, puts driver to sleep
-// Returns right away
-  P1->OUT &= ~0xC0;
-  P2->OUT &= ~0xC0;   // off
-  P3->OUT &= ~0xC0;   // low current sleep mode
+    // Stops both motors, puts driver to sleep
+    // Returns right away
+    P1->OUT &= ~0xC0;
+    P2->OUT &= ~0xC0;   // off
+    P3->OUT &= ~0xC0;   // low current sleep mode
 }
+
 void Motor_ForwardSimple(uint16_t duty, uint32_t time){
-// Drives both motors forward at duty (100 to 9900)
-// Runs for time duration (units=10ms), and then stops
-// Stop the motors and return if any bumper switch is active
-// Returns after time*10ms or if a bumper switch is hit
-    PWM_Init34(100, 50, 25);
-  // write this as part of Lab 12
+    // Drives both motors forward at duty (100 to 9900)
+    // Runs for time duration (units=10ms), and then stops
+    // Stop the motors and return if any bumper switch is active
+    // Returns after time*10ms or if a bumper switch is hit
+    // write this as part of Lab 12
+    P5OUT &=~0x30;
+    P3OUT |= 0xC0;
+    PWM_Init34(10000,duty,duty);
+    SysTick_Wait10ms(time);
+    PWM_Init34(duty,0,0);
+    P3OUT &=~0xC0;
 }
+
 void Motor_BackwardSimple(uint16_t duty, uint32_t time){
-// Drives both motors backward at duty (100 to 9900)
-// Runs for time duration (units=10ms), and then stops
-// Runs even if any bumper switch is active
-// Returns after time*10ms
+    // Drives both motors backward at duty (100 to 9900)
+    // Runs for time duration (units=10ms), and then stops
+    // Runs even if any bumper switch is active
+    // Returns after time*10ms
+    // write this as part of Lab 12
 
-  // write this as part of Lab 12
+    P5OUT |= 0x30;
+    P3OUT |= 0xC0;
+    PWM_Init34(10000,duty,duty);
+    SysTick_Wait10ms(time);
+    PWM_Init34(duty,0,0);
+    P3OUT &=~0xC0;
 }
+
 void Motor_LeftSimple(uint16_t duty, uint32_t time){
-// Drives just the left motor forward at duty (100 to 9900)
-// Right motor is stopped (sleeping)
-// Runs for time duration (units=10ms), and then stops
-// Stop the motor and return if any bumper switch is active
-// Returns after time*10ms or if a bumper switch is hit
-
-  // write this as part of Lab 12
+    // Drives just the left motor forward at duty (100 to 9900)
+    // Right motor is stopped (sleeping)
+    // Runs for time duration (units=10ms), and then stops
+    // Stop the motor and return if any bumper switch is active
+    // Returns after time*10ms or if a bumper switch is hit
+    // write this as part of Lab 12
+    P5OUT |=0x10; //5.4 -> 1 -- goes backwards (left wheel)
+    P5OUT &=~0x20; //5.5 -> 0 --goes forward (right wheel)
+    P3OUT |= 0xC0; //sleep P3.6 (right motor) and P3.7 (left motor)
+    PWM_Init34(10000,duty,duty);
+    SysTick_Wait10ms(time);
+    PWM_Init34(duty,0,0);
+    P3OUT &=~0xC0;
 }
-void Motor_RightSimple(uint16_t duty, uint32_t time){
-// Drives just the right motor forward at duty (100 to 9900)
-// Left motor is stopped (sleeping)
-// Runs for time duration (units=10ms), and then stops
-// Stop the motor and return if any bumper switch is active
-// Returns after time*10ms or if a bumper switch is hit
 
-  // write this as part of Lab 12
+void Motor_RightSimple(uint16_t duty, uint32_t time){
+    // Drives just the right motor forward at duty (100 to 9900)
+    // Left motor is stopped (sleeping)
+    // Runs for time duration (units=10ms), and then stops
+    // Stop the motor and return if any bumper switch is active
+    // Returns after time*10ms or if a bumper switch is hit
+    // write this as part of Lab 12
+    P5OUT &=~0x10;
+    P5OUT |= 0x20;
+    P3OUT |= 0xC0;
+    PWM_Init34(10000,duty,duty);
+    SysTick_Wait10ms(time);
+    PWM_Init34(duty,0,0);
+    P3OUT &=~0xC0;
 }
